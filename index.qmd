@@ -1,0 +1,1077 @@
+---
+institute: Twelfth [WIOMSA Symposium]{style="color:blue"}-Port Elizabeth, South Africa
+title: A [Data-Driven]{style="color:darkorchid"} Decision Support [Tools]{style="color:red"} for [Tanzania's]{style="color:darkorange"} Marine Environments
+author: "Masumbuko Semba"
+format: 
+  revealjs:
+    self-contained: true
+    logo: WIOMSAlogo.png
+    theme: dark
+    smaller: false
+    scrollable: true
+    footer: "Semba@2022"
+---
+
+## [Presentation's plan]{style="color:#E5157D"}
+
+
+## {auto-animate=true}
+
+Web Application
+
+## {auto-animate=true}
+
+Structure of Web Apps
+
+Web Application
+
+
+## {auto-animate=true}
+
+
+Selected Apps
+
+Structure of Web Apps
+
+Web Application
+
+
+## {auto-animate=true}
+
+
+Conclusion
+
+Selected Apps
+
+Structure of Web Apps
+
+Web Application
+
+## {auto-animate=true}
+
+Acknowledgement
+
+Conclusion
+
+Selected Apps
+
+Structure of Web Apps
+
+Web Application
+
+
+
+
+# [What's Web Application]{style="color:#399BE5"}
+
+::: {.absolute top="0" left="100%"}
+::: {.sectionhead}
+1 [2 3 4 ]{style="opacity:0.2"}
+:::
+:::
+
+---
+
+## [Web Application]{style="color:#E5157D"}
+::: {.incremental}
+- One of the core element in digital age is building decision support systems
+- This system are often widely used as web application
+- A program that is stored on a remote server and delivered over the Internet through a browser interface
+::: 
+
+## [Benefits of Web App]{style="color:#E5157D"}
+::: {.incremental}
+- automate analytics
+- Is an interactive and allow multiple users to query the app
+- Web apps don’t need to be installed.
+- accessed through various platforms (desktop, laptop, or mobile)
+::: 
+
+# [Structure of Web App]{style="color:#399BE5"}
+
+::: {.absolute top="0" left="100%"}
+::: {.sectionhead}
+2 [1 3 4 ]{style="opacity:0.2"}
+:::
+:::
+
+---
+
+## [Tools]{style="color:#399BE5"}
+::: {.incremental}
+- A combination of languages (R, Python, Javascripts, Julia)
+- Markup languages (HTML, CSS, Markdown, LATEX)
+- IDE that support multiple languages Posit (formerly Rstudio)
+- shiny package
+:::
+
+## [Component of Web App]{style="color:#E5157D"}
+
+::: {.panel-tabset}
+
+### Packages
+```{r}
+#| eval: false
+#| echo: true
+#| code-line-numbers: "1-7"
+
+
+
+require(shiny)
+require(shinydashboard)
+require(shinyWidgets)
+require(networkD3)
+require(highcharter)
+require(vistime)
+require(DT)
+require(sf)
+require(tidyverse)
+require(tmap)
+require(magrittr)
+require(metR)
+```
+
+
+### Frontend
+
+```{r }
+#| eval: false
+#| echo: true
+#| code-line-numbers: "1-12"
+
+
+# frontend ----
+ui = navbarPage(
+  theme = bslib::bs_theme(version = 5, bootswatch = "journal"), 
+  tags$img(src = "coat.png", width = "30%", height = "30%"),
+  dashboardHeader(title = "", disable = TRUE),
+  useShinydashboard(),
+  ## link CSS 
+  tags$head(
+    tags$link(rel = "stylesheet", type = "text/css", href = "ocean.css")
+  ),
+  windowTitle = tags$h3("The Marine Fisheries Hub"),
+  ## coastal page
+  tabPanel(title = "Coastal",
+           fluidRow(
+             column(width = 1),
+             column(width = 2,
+                    tags$p("Fishers prefer to fish certian species but only if those species are available within the coastal waters of their vicinity. The sankeyplot illustrate well the target of tuna species in several landing sites during the northeast and southeas monsoon season"),
+                    helpText("Click either NE or SE button to visualize the flow in a particular monsoon season"),
+                    radioGroupButtons(inputId = "neriticSeason", label = "", choices = c("NE","SE"), selected = "SE", status = "info")
+                    ),
+             column(width = 8,
+                    sankeyNetworkOutput(outputId = "neriticSankey", height = 300) %>% shinycustomloader::withLoader(type = "html", loader = "loader1")
+                    )
+           ),
+           fluidRow(column(width = 1), 
+                    column(width = 5, tags$h4("The Dominant Tuna Groups"))
+                    ),
+           fluidRow(
+             column(width = 1),
+             # column(width = 1,
+             #        tags$p("The dominant tuna species in the coastal waters includes....")
+             #        ),
+             column(width = 2,
+                    plotOutput(outputId = "plotScatter", width = 250, height = 250)%>% shinycustomloader::withLoader(type = "html", loader = "loader1")
+             ),
+             column(width = 1,
+                    helpText("Choose a species to visualize"),
+                    radioGroupButtons(inputId = "tunaSpecies", label = "", choices =species.neritic, selected = species.neritic[1], status = "primary", direction = "vertical" )
+                    ),
+             column(width = 2,
+                    plotOutput(outputId = "plotSpecies", brush = "plot_brush", width = 250, height = 250) %>% shinycustomloader::withLoader(type = "html", loader = "loader1")
+                    ),
+             # column(width = 4,
+             #        DT::dataTableOutput(outputId = "dt1") %>% shinycustomloader::withLoader(type = "html", loader = "loader1")
+             #        ),
+             column(width = 1, helpText("To explore the difference of fork length and weight of selected species at the landing sites, simply make a marque selection in the plot")),
+             column(width = 2, plotOutput(outputId = "tunaSitePlot", width = 250, height = 250) %>% shinycustomloader::withLoader(type = "html", loader = "loader1")
+                    ),
+             column(width = 2, plotOutput(outputId = "tunaSitePlot2", width = 250, height = 250) %>% shinycustomloader::withLoader(type = "html", loader = "loader1")
+             )
+           ),
+           fluidRow(),
+           fluidRow()
+           ),
+  
+  ## eez page ----
+  tabPanel(title = "EEZ",
+           fluidRow(
+             column(width = 1),
+             column(width = 5, tags$h5("The Exclusive Economic Zone"))
+           ),
+           fluidRow(
+             column(width = 1),
+             column(width = 3, 
+                    tags$h6("The EEZ's Tuna fishery"),
+                    tags$p("Mi, assecte mperibus quas re, conectent audaecto et venis cusa volupta tquodi veliquo volorrore dolor mod moluptatur simus a accabo. Et unt velicia dipsum quassi dollaut odion et dolor apit quibusae offictatquo od es doluptis doloratem istia quatem. Uga. Ciisit as eatis vent ea aborestectem re, tes ese porempost alitatio." )),
+             column(width = 3, 
+                    tags$h6("The EEZ's Tuna fishery"),
+                    tags$p("Mi, assecte mperibus quas re, conectent audaecto et venis cusa volupta tquodi veliquo volorrore dolor mod moluptatur simus a accabo. Et unt velicia dipsum quassi dollaut odion et dolor apit quibusae offictatquo od es doluptis doloratem istia quatem. Uga. Ciisit as eatis vent ea aborestectem re, tes ese porempost alitatio." )),
+             column(width = 3, 
+                    tags$h6("The EEZ's Tuna fishery"),
+                    tags$p("Mi, assecte mperibus quas re, conectent audaecto et venis cusa volupta tquodi veliquo volorrore dolor mod moluptatur simus a accabo. Et unt velicia dipsum quassi dollaut odion et dolor apit quibusae offictatquo od es doluptis doloratem istia quatem. Uga. Ciisit as eatis vent ea aborestectem re, tes ese porempost alitatio." )),
+             column(width = 2)
+           ),
+           fluidRow(
+             column(width = 1),
+             column(width = 2,
+                    tags$p("Depending on the species, their availability .....")
+                    ),
+             column(width = 8, 
+                    sankeyNetworkOutput(outputId = "sankeyeez", height = 300) %>% shinycustomloader::withLoader(type = "html", loader = "loader1")
+                    )
+             
+           ),
+           fluidRow(
+             column(width = 1),
+             column(width = 5, 
+                    tags$h5("Length-Weight Relationship"))
+             ),
+           fluidRow(
+             column(width = 1),
+             column(width = 2,
+                    tags$p("Length and weight data are useful in fisheries management and standard results of fish monitoring programs. Length-weight relationship (LWR) is used for estimating the weight corresponding to a given length, and the condition factor is used to compare the body condition, fatness or health of fish populations.")
+                    ),
+             column(width = 2,
+                    plotOutput(outputId = "eezLW", width = 250, height = 250) %>% shinycustomloader::withLoader(type = "html", loader = "loader1")
+                    ),
+             column(width = 1,
+                    helpText("Simply click the button of the species you wish to plot"),
+                    radioGroupButtons(inputId = "eezSpecies", label = "", choices = species.eez, selected = species.eez[1], status = "info", direction = "vertical")
+                    ),
+             column(width = 2, plotOutput(outputId = "eezlwSpecies", width = 250, height = 250) %>% shinycustomloader::withLoader(type = "html", loader = "loader1")
+                    ),
+             column(width = 3,
+                    plotOutput(outputId = "eezBoxplot", width = 300, height = 250) %>% shinycustomloader::withLoader(type = "html", loader = "loader1")
+                    )
+             
+           )
+           ),
+  ## LW hotspot page ----
+  tabPanel(title = "Length & Weight",
+           fluidRow(
+             column(width = 1),
+             column(width = 5, tags$h5("A Glimpse of hotspot Analysis!"))
+             ),
+           fluidRow(
+             column(width = 1),
+             column(width = 3,
+                    tags$h6("Overview"),
+                    tags$p("Hotspot analysis is a spatial analysis and mapping technique that focuses on the identification of spatial phenomenon clustering. In this case, we want to identify and map clusters of fork length or weight of specific tuna species. Clusters of high values are referred to as hotspots, while clusters of low values are referred to as coldspots.")
+                    ),
+             column(width = 3,
+                    tags$h6("Description"),
+                    tags$p("A hotspot is defined as an area with a higher concentration of events than would be expected given a random distribution of events. The study of point distributions or spatial arrangements of points in a space led to the development of hotspot detection (Chakravorty, 1995).")
+             ),
+             column(width = 3,
+                    tags$h6("Applications"),
+                    tags$p("The application of hotspot analysis has increased significantly in the past couple of decades mainly due to the advent computing power of computer and spatial analysis tools and software. Classical example applications of hotspot analysis in coastal and marine fisheries include where and when are large size tuna caught in the EEZ and territorial waters of Tanzania.")
+             )
+             ),
+           fluidRow(
+             column(width = 1),
+             column(width = 5,
+                    tags$h4("Hotspots and coldspot Cluster of length and Weight")
+                    )
+           ),
+           fluidRow(
+             column(width = 1),
+             column(width = 2,
+                    highchartOutput(outputId = "sppBar", width = 250, height = 300) %>% shinycustomloader::withLoader(type = "html", loader = "loader1")
+                    ),
+             column(width = 1,
+                    helpText("First choose a tuna species and variable"),
+                    radioGroupButtons(inputId = "eezSpeciesHotspot", label = "", choices = species.eez, selected = species.eez[1], status = "info", direction = "vertical"),
+                    radioGroupButtons(inputId = "eezVarHotspot", label = "", choices = variable.eez, selected = variable.eez[1], status = "primary", direction = "horizontal")
+                    
+                    ),
+             column(width = 3, plotOutput(outputId = "densityMap", width = 300, height = 300) %>% shinycustomloader::withLoader(type = "html", loader = "loader1")
+                    ),
+             column(width = 3, plotOutput(outputId = "hotspotMap", width = 300, height = 300) %>% shinycustomloader::withLoader(type = "html", loader = "loader1")
+                    ),
+             column(width = 2)
+           )
+           )
+  ,
+  ## PFZ page ----
+  tabPanel(title = "PFZ",
+           fluidRow(
+             column(width = 1),
+             column(width = 5, tags$h5("Monthly Variation of PFZ in EEZ")
+                    )
+           ),
+           fluidRow(
+             column(width = 1),
+             column(width = 2,
+                    tags$p("Scientists use Sea Surface Temperature (SST) and Chlorophyll retrieved from satellites to identify areas in the marine environments that are likely potential for fishing and offer high cer-tainty of getting high catches.  This apps allows the user to interact with data and assess the areas of high PFZ in the coastal and marine waters of Tanzania.")
+                    
+                    ),
+             column(width = 1,
+                    radioGroupButtons(inputId = "monthLL", label = "", choices = month.abb[c(10:12,1:3)], selected = "Nov", status = "info", direction = "vertical")
+             ),
+             # column(width = 1,
+             #        radioGroupButtons(inputId = "monthPFZ", label = "", choices = month.abb, selected = "Oct", status = "info", direction = "vertical")
+             #        ),
+             
+             column(width = 2, plotOutput(outputId = "densityPFZ", width = 300, height = 300) %>% shinycustomloader::withLoader(type = "html", loader = "loader1")
+             ),
+             column(width = 2, plotOutput(outputId = "hotspotPFZ", width = 300, height = 300) %>% shinycustomloader::withLoader(type = "html", loader = "loader1")
+             ),
+             column(width = 2)
+           ),
+           fluidRow(
+             column(width = 1),
+             column(width = 5, tags$h5("Longline Effort & Catch in the EEZ")
+                    )
+           ),
+           fluidRow(
+             column(width = 1),
+             column(width = 5,
+                    tags$p("The main fishing grounds of tuna in the Exclusive Eonomic Zone of Tanzania vary both in space and time. By simply choosing the month in the selector you will notice a shift of the fishing effort that is justified by the clusters of significantly high and low fishing efforts in the area")
+                    )
+           ),
+           fluidRow(
+             column(width = 1),
+             column(width = 2, plotOutput(outputId = "densityEffort", width = 300, height = 300) %>% shinycustomloader::withLoader(type = "html", loader = "loader1")
+             ),
+             column(width = 2, plotOutput(outputId = "hotspotEffort", width = 300, height = 300) %>% shinycustomloader::withLoader(type = "html", loader = "loader1")
+             ),
+             column(width = 2, plotOutput(outputId = "densityCatch", width = 300, height = 300) %>% shinycustomloader::withLoader(type = "html", loader = "loader1")
+             ),
+             column(width = 2, plotOutput(outputId = "hotspotCatch", width = 300, height = 300) %>% shinycustomloader::withLoader(type = "html", loader = "loader1")
+             ),
+             column(width = 2)
+           ),
+           tags$br(),
+           tags$br()
+           ),
+  
+  ## developer page
+  tabPanel(title = "Developer",
+           fluidRow(
+             column(width = 1),
+             column(width = 6,tags$h4("About the Developer"))
+           ),
+           fluidRow(
+             column(width = 1),
+             column(width = 2,imageOutput(outputId = "semba", height = "100px") %>% shinycustomloader::withLoader(type = "html", loader = "loader1")
+             ),
+             column(width = 3,
+                    tags$p(
+                      "This Web Application was developed by Semba,  a data scientist at the Nelson Mandela African Institution of Science and Techlogy. Semba focus on",
+                      "data analysis and infere findings from statistics. He also use machine learning to model and forecast using scripting language like R and Python. Semba prefer to share the insights from the findings using interactive decision support tools,",
+                      ". I enjoy building data tools that are capable of solving problem facing the society,",
+                      "like this dashboard. You can find more of the things I like to build on my webpage",
+                      HTML(paste0(tags$a(href = "https://semba-blog.netlify.app/", "semba blog", target = "_blank"), "."))
+                    )),
+             column(width = 3,
+                    tags$p(
+                      "Semba use data science tools to support research with",
+                      tags$a(href = "https://hinger.netlify.app/", "hinger", target = "_blank"),
+                      "I'm lucky to get to use R and RStudio tools on a daily basis to help others",
+                      "learn from clients, I have succumb myself into a myriad of data that evolved my skills to handle both spatial and non-spatial data",
+                      " and report them through dashboards and interactive reports like this one."
+                    ),),
+             column(width = 2,
+                    tags$p(
+                      "Get in touch with me on Github at",
+                      HTML(paste0("(", tags$a(href = "https://github.com/lugoga", "@semba", target = "_blank"), "),")),
+                      "online at",
+                      HTML(paste0(tags$a(href = "https://hinger.netlify.app/", "", target = "_blank"), ",")),
+                      "or by email at",
+                      HTML(paste0(tags$a(href = "mailto:lugosemba@gmail.com", "Semba"), "."))
+                    )),
+             column(width = 1),
+           ),
+           tags$br(),
+           tags$br(),
+           fluidRow(
+             column(width = 1),
+             column(width = 5, tags$h4("Acknowledgements"))
+           ),
+           fluidRow(
+             column(width = 1),
+             column(width = 3,
+                    helpText("We acknowledge the support of the Global Monitoring for Environment and Security and Africa (GMES and Africa), which is a joint programme of the European Commission and the African Union Commission.")
+             ),
+             column(width = 3,
+                    helpText("We acknowledge the Deep Sea Fishing Authority of the United Republic of Tanzania, which provide catch and length data of tuna and tuna like species caught in Tanzania's territorial and Exclusive Economic Zone")
+             ),
+             column(width = 3,
+                    helpText("A number of institutions and individuals that supported this initiatives are also acknowledged. This include R programming language developer, an environment that was used to develop this system and other collaborating instituions")
+             )
+           ),
+           tags$br(),
+           fluidRow(
+             column(width = 1),
+             column(width = 2,imageOutput(outputId = "logo1", height = "100px") %>% shinycustomloader::withLoader(type = "html", loader = "loader1"), tags$br()),
+             column(width = 2,imageOutput(outputId = "logo2", height = "100px") %>% shinycustomloader::withLoader(type = "html", loader = "loader1"), tags$br()),
+             column(width = 2,imageOutput(outputId = "logo3", height = "100px") %>% shinycustomloader::withLoader(type = "html", loader = "loader1"), tags$br()),
+             column(width = 2,imageOutput(outputId = "logo4", height = "100px") %>% shinycustomloader::withLoader(type = "html", loader = "loader1"), tags$br()),
+             column(width = 2,imageOutput(outputId = "logo5", height = "100px") %>% shinycustomloader::withLoader(type = "html", loader = "loader1"), tags$br())
+           ),
+           tags$br(),
+           tags$br(),
+           tags$br()
+           
+  )
+  
+)
+
+```
+
+### Backend
+
+```{r}
+#| eval: false
+#| echo: true
+#| code-line-numbers: "5-13"
+
+
+# backend
+server = function(input, output, session){
+  
+  
+  # quest.tb =  reactive({
+  #   lw.data.season %>% filter(season == "NE")
+  # })
+  
+  output$neriticSankey = renderSankeyNetwork({
+    
+    quest.tb = lw.data.season %>% filter(season == input$neriticSeason)
+    
+    # From these flows we need to create a node data frame: it lists every entities involved in the flow
+    nodes <- data.frame(name=c(as.character(quest.tb$source), as.character(quest.tb$target)) %>% unique())
+    
+    nodes = quest.tb %>% 
+      select(-value) %>% 
+      pivot_longer(cols = source:target) %>% 
+      distinct(value) %>% 
+      rename(name = 1) %>% 
+      as.data.frame()
+    
+    # With networkD3, connection must be provided using id, not using real name like in the links dataframe.. So we need to reformat it.
+    quest.tb$IDsource=match(quest.tb$source, nodes$name)-1 
+    quest.tb$IDtarget=match(quest.tb$target, nodes$name)-1
+    
+    
+    # Make the Network 
+    sankeyNetwork(Links = quest.tb, 
+                             Nodes = nodes,
+                             Source = "IDsource", 
+                             Target = "IDtarget",
+                             Value = "value", 
+                             NodeID = "name", 
+                             fontFamily = "Arial",
+                             LinkGroup = "source",
+                             sinksRight=FALSE,
+                             # height = 600, width = 800,
+                             # colourScale=ColourScal,
+                             nodeWidth=40, 
+                             iterations = 5,
+                             fontSize=13, 
+                             nodePadding=30)
+  })
+  
+  
+  scatter.data = reactive({
+    lw.data  %>% 
+    distinct(uzito, .keep_all = TRUE) %>% 
+    filter(uzito >= 0 & uzito < 8 & focul_length < 100) %>% 
+    mutate(fishing_date = lubridate::mdy(fishing_date)) %>% 
+    select(fishing_date, landing_site = mwalo_bandari_diko, english_name, 
+           fork_length = focul_length, weight = uzito)
+  })
+  
+  output$plotScatter = renderPlot({
+  scatter.data() %>% 
+    ggplot(aes(x = fork_length, y = weight, color = english_name))+
+    geom_jitter(size = 1.2)+
+    ggsci::scale_color_d3(name = "Name")+
+    scale_y_continuous(name = "Weight (kg)")+
+    scale_x_continuous(name = "Fork length (cm)")+
+    theme(legend.position = c(.25,.75), legend.title = element_blank(), legend.text = element_text(size = 11))
+  })
+  
+  output$plotSpecies = renderPlot({
+  scatter.data() %>% 
+    filter(english_name == input$tunaSpecies)%>% 
+    ggplot(aes(x = fork_length, y = weight))+
+    geom_jitter(size = 1.2)+
+    geom_smooth(method = "lm",color = "red", fill = "red", alpha = .2) +
+    ggsci::scale_color_d3(name = "Name")+
+    scale_y_log10(name = "Weight (kg)")+
+    scale_x_log10(name = "Fork length (cm)")
+  })
+  
+  
+  # output$dt1 = renderDataTable({
+  #   scatter.data() %>% 
+  #     brushedPoints(brush = input$plot_brush) %>% 
+  #     DT::datatable(
+  #       colnames = c("Date", "Site", "Name", "Length", "Weight"), 
+  #       rownames = NA,
+  #       # extensions = "Buttons", 
+  #       options = list(paging = TRUE,
+  #                      scrollX=TRUE, 
+  #                      searching = TRUE,
+  #                      ordering = TRUE,
+  #                      dom = 'Bfrtip',
+  #                      # buttons = c('copy', 'csv', 'excel', 'pdf'),
+  #                      pageLength=2, 
+  #                      lengthMenu=c(3,5,10)
+  #                      )
+  #       )
+  #     
+  #   
+  # })
+  
+  
+  output$tunaSitePlot = renderPlot({
+    
+    scatter.data() %>% 
+      brushedPoints(brush = input$plot_brush) %>% 
+      ggstatsplot::ggbetweenstats(x = landing_site, y = fork_length, 
+                                  type = "non-parametric", pairwise.comparisons = FALSE,
+                                  p.adjust.method = "BH", bf.message = FALSE, caption = "Semba@2022", outlier.shape = 4)+
+      labs(x = "", y = "Fork length (cm)")+
+      theme(axis.title.x = element_blank(), text = element_text(size = 10))
+  })
+  
+  output$tunaSitePlot2 = renderPlot({
+    
+    scatter.data() %>% 
+      brushedPoints(brush = input$plot_brush) %>% 
+      ggstatsplot::ggbetweenstats(x = landing_site, y = weight, 
+                                  type = "non-parametric", pairwise.comparisons = FALSE,
+                                  p.adjust.method = "BH", bf.message = FALSE, caption = "Semba@2022", outlier.shape = 4)+
+      labs(x = "", y = "Weight (kg)")+
+      theme(axis.title.x = element_blank())
+  })
+  
+  
+  ## sankey eez ----
+  
+  output$sankeyeez = renderSankeyNetwork({
+    
+    quest.tb = lw.eez.clean %>% 
+      group_by(species, month) %>% 
+      count() %>% 
+      ungroup() %>% 
+      select(source = species, target = month, value = n) %>% 
+      as.data.frame()
+    
+    # From these flows we need to create a node data frame: it lists every entities involved in the flow
+    nodes <- data.frame(name=c(as.character(quest.tb$source), as.character(quest.tb$target)) %>% unique())
+    
+    nodes = quest.tb %>% 
+      select(-value) %>% 
+      pivot_longer(cols = source:target) %>% 
+      distinct(value) %>% 
+      rename(name = 1) %>% 
+      as.data.frame()
+    
+    # With networkD3, connection must be provided using id, not using real name like in the links dataframe.. So we need to reformat it.
+    quest.tb$IDsource=match(quest.tb$source, nodes$name)-1 
+    quest.tb$IDtarget=match(quest.tb$target, nodes$name)-1
+    
+    
+    # Make the Network 
+    networkD3::sankeyNetwork(Links = quest.tb, 
+                             Nodes = nodes,
+                             Source = "IDsource", 
+                             Target = "IDtarget",
+                             Value = "value", 
+                             NodeID = "name", 
+                             fontFamily = "Arial",
+                             LinkGroup = "source",
+                             sinksRight=FALSE,
+                             # height = 600, width = 800,
+                             # colourScale=ColourScal,
+                             nodeWidth=40, 
+                             iterations = 5,
+                             fontSize=13, 
+                             nodePadding=30)
+  })
+  
+  output$eezLW = renderPlot({
+    
+    lw.eez.clean %>% 
+      filter(!is.na(species)) %>% 
+      ggplot(aes(x = fl, y = weight, color = species)) +
+      geom_jitter()+
+      scale_color_manual(values = c("darkorange","darkorchid","cyan4")) +
+      scale_y_continuous(name = "Weight (kg)", trans = scales::log10_trans())+
+      scale_x_continuous(name = "Fork length (cm)",limits = c(80,210), trans = scales::log10_trans())+
+      theme(legend.position = c(.25,.8), legend.title = element_blank(), legend.text = element_text(size = 11))
+  })
+  
+  
+  output$eezlwSpecies = renderPlot({
+    
+    lw.eez.clean %>% 
+      filter(species == input$eezSpecies) %>% 
+      ggplot() +
+      geom_jitter(aes(x = fl, y = weight), color = "darkorchid")+
+      scale_y_continuous(name = "Weight (kg)", trans = scales::log10_trans(), breaks = scales::pretty_breaks(n = 5))+
+      scale_x_continuous(name = "Fork length (cm)",limits = c(80,210), trans = scales::log10_trans(), breaks = scales::pretty_breaks(n = 5))
+  })
+  
+  
+  
+  output$eezBoxplot = renderPlot({
+    
+    aa = lw.eez.clean %>% 
+      filter(species == input$eezSpecies) %>%
+      statsExpressions::oneway_anova(x = month, y = fl, type = "n")
+    
+    
+    lw.eez.clean %>% 
+      filter(species == input$eezSpecies) %>%
+      ggplot(aes(x = month, y = fl))+
+      geom_boxplot(fill = "cyan4", alpha = .6, outlier.colour = "darkorange")+
+      scale_y_continuous(trans = scales::sqrt_trans())+
+      theme(axis.title.y = element_blank())+
+      scale_x_discrete(limits = c("Oct", "Nov", "Dec", "Jan", "Feb", "Mar", "Apr") %>% rev())+
+      coord_flip()+
+      labs(subtitle = aa$expression[[1]], y = "Fork length (cm)")
+  })
+  
+  
+  output$sppBar = renderHighchart({
+    
+    lw.eez.clean %>% 
+      group_by(species) %>% 
+      count() %>% 
+      arrange(desc(n)) %>% 
+      hchart(type = "column", hcaes(x = species, y = n, 
+                                    color = c(Yellowfin = "#FF8C00", Bigeye = "#9932CC", Swordfish = "#025269")[species])) %>% 
+      hc_xAxis(title = FALSE) %>% 
+      hc_yAxis(title = list(text = "Number of individuals"))
+  })
+  
+  
+  ## EEZ lw hotspot ----
+  eez.grid.fl = reactive({
+    tuna.eez.selected %>% 
+      filter(variable == input$eezVarHotspot & species == input$eezSpeciesHotspot)%>% 
+      st_as_sf(coords = c("longitude", "latitude"), crs = 4326) %>% 
+      st_transform(32737) %>% 
+      # wior::point_tb() %>%
+      point_tb() %>% #pull from the function created
+      select(x = lon, y = lat, data)  %>% 
+      btb::kernelSmoothing(sEPSG = "32737", 
+                           iCellSize = 20000, 
+                           iBandwidth = 30000, 
+                           vQuantiles = c(.25, .5,.9, .99)) %>% 
+      st_transform(4326) 
+  })
+  
+  output$densityMap = renderPlot({
+    eez.grid.fl() %>% 
+      ggplot()+
+      geom_sf(aes(fill = data_05), color = "ivory")+
+      scale_fill_gradientn(colours = mycolor3, 
+                           name = input$eezVarHotspot,
+                           trans = scales::sqrt_trans())+
+      ggspatial::layer_spatial(data = tz.sf,  fill = "#87755B") +
+      coord_sf(xlim = c(38.4,43.1), ylim = c(-10.5,-4.8))+
+      theme(legend.position = c(.16,.13))
+  })
+  
+  
+  output$hotspotMap = renderPlot({
+    
+    weighted.fl = eez.grid.fl()  %>% 
+      select(data_05) %>% 
+      rgeoda::queen_weights()
+    
+    
+    moran = rgeoda::local_gstar(w = weighted.fl, 
+                                df = eez.grid.fl()  %>% select(data_05) )
+    
+    clusters = moran %>%  
+      rgeoda::lisa_clusters() %>% unique()
+    cluster.label = moran %>%  rgeoda::lisa_labels() %>% unique()
+    cluster.label[1:3] = c("Insignificant","Hotspot", "Coldspot")
+    cluster.color = moran %>%  rgeoda::lisa_colors()
+    cluster.color[1] = "#9CB2B2"
+    
+    
+    getis.fl = eez.grid.fl()   %>% 
+      mutate(getis = moran %>%  rgeoda::lisa_clusters() %>%  as.factor(), 
+             pvalues = moran %>% rgeoda::lisa_pvalues(),
+             plabels = case_when(pvalues >= 0.05 ~ "Not significant",
+                                 pvalues < 0.05 ~ "Significant"))
+    
+    
+    ggplot(data = getis.fl, aes(fill = getis))+
+      geom_sf(color = "ivory")+
+      # geom_sf_text(aes(label = data_099))+
+      ggspatial::layer_spatial(data = tz.sf,  fill = "#87755B") +
+      coord_sf(xlim = c(38.4,43.1), ylim = c(-10.5,-4.8))+
+      scale_fill_manual(values = cluster.color, label = cluster.label, name = "Clusters")+
+      theme(legend.position = c(.16,.13))
+  })
+  
+  
+  ## pfz -----
+  
+  selected.pfz = reactive({
+    
+    pfz.tb %>% filter(month == input$monthLL) 
+    
+  })
+  
+  
+  output$densityPFZ = renderPlot({
+    
+    selected.pfz() %>% 
+      ggplot(aes(x = lon, y = lat, z = fit))+
+      metR::geom_contour_fill(show.legend = FALSE)+
+      metR::geom_contour2(aes(label = ..level..), skip = 1, size = .2, alpha = 1, )+
+      ggspatial::layer_spatial(data = tz.sf, fill = "#87755B", color = "black") +
+      coord_sf(xlim = c(38.4,43.1), ylim = c(-10.5,-4.8))+
+      scale_fill_gradientn(colours = mycolor3, 
+                           # trans = scales::sqrt_trans(),
+                           guide = guide_colorbar(barwidth = unit(4,"mm"), reverse = TRUE),
+                           breaks = c(10,seq(60,400,60)))+
+      theme_bw() +
+      theme(panel.background = element_blank(),
+            panel.grid = element_blank(),
+            axis.text = element_text(colour = "black", size = 11),
+            legend.position = c(0.12,0.2),
+            legend.background = element_rect(fill = "grey85"),
+            legend.text = element_text(size = 9), 
+            axis.title = element_blank()) +
+      theme(axis.title = element_blank())
+  })
+  
+  
+  output$hotspotPFZ = renderPlot({
+    
+    selected.pfz = pfz.tb %>% filter(month == input$monthLL) 
+    
+    quant = selected.pfz %$% quantile(fit) %>% as.vector()
+    quant = quant[c(2,4)] %>% round(digits = 0)
+    
+    pfz.tz = selected.pfz %>% 
+      select(lon,lat,fit) %>% 
+      st_as_sf(coords = c("lon", "lat"), crs = 4326)
+    
+    weighted.pfz.tz = pfz.tz %>% 
+      rgeoda::queen_weights()
+    
+    moran = rgeoda::local_gstar(w = weighted.pfz.tz, df = pfz.tz)
+    
+    clusters = moran %>%  rgeoda::lisa_clusters() %>% unique()
+    cluster.label = moran %>%  rgeoda::lisa_labels() %>% unique()
+    cluster.label[1:3] = c("Insignificant","Hotspot", "Coldspot")
+    cluster.color = moran %>%  rgeoda::lisa_colors()
+    cluster.color[1] = "#9CB2B2"
+    
+    getis.pfz.tz = pfz.tz  %>% 
+      mutate(getis = moran %>%  rgeoda::lisa_clusters() %>%  as.factor(), 
+             pvalues = moran %>% rgeoda::lisa_pvalues(),
+             plabels = case_when(pvalues >= 0.05 ~ "Not significant",
+                                 pvalues < 0.05 ~ "Significant"))
+    
+    
+    ggplot()+
+      geom_sf(data = getis.pfz.tz, aes(color = getis))+
+      metR::geom_contour2(data = selected.pfz, 
+                          aes(x = lon, y = lat, z = fit, label = ..level..), breaks = quant, skip = 0, size = .2, alpha = 1, )+
+      ggspatial::layer_spatial(data = tz.sf,  fill = "#87755B") +
+      coord_sf(xlim = c(38.4,43.1), ylim = c(-10.5,-4.8))+
+      scale_color_manual(values = cluster.color, label = cluster.label, name = "PFZ Clusters")+
+      theme(legend.position = c(.15,.12), axis.title = element_blank())
+    
+  })
+  
+  output$densityCatch = renderPlot({
+    
+    eez.grid.catchWeight = eez.catch.clean %>% 
+      filter(month == input$monthLL & !is.na(catched_weight)) %>%
+      st_as_sf(coords = c("lon", "lat"), crs = 4326) %>% 
+      st_transform(32737) %>% 
+      point_tb() %>% 
+      select(x = lon, y = lat, catched_weight)  %>% 
+      btb::kernelSmoothing(sEPSG = "32737", 
+                           iCellSize = 20000, 
+                           iBandwidth = 30000, 
+                           vQuantiles = c(.25, .5,.9, .99)) %>% 
+      st_transform(4326) 
+    
+    eez.grid.catchWeight %>% 
+      ggplot()+
+      geom_sf(aes(fill = catched_weight_05), color = "ivory")+
+      scale_fill_gradientn(colours = mycolor2, name = "Catch", trans = scales::sqrt_trans())+
+      ggspatial::layer_spatial(data = tz.sf,  fill = "#87755B") +
+      coord_sf(xlim = c(38.4,43.1), ylim = c(-10.5,-4.8))+
+      theme(legend.position = c(.15,.17))
+  })
+  
+  
+  output$hotspotCatch = renderPlot({
+    
+    eez.grid.catch = eez.catch.clean %>% 
+      filter(month == input$monthLL & !is.na(catched_weight)) %>%
+      st_as_sf(coords = c("lon", "lat"), crs = 4326) %>% 
+      st_transform(32737) %>% 
+      point_tb() %>% 
+      select(x = lon, y = lat, catched_weight)  %>% 
+      btb::kernelSmoothing(sEPSG = "32737", 
+                           iCellSize = 20000, 
+                           iBandwidth = 30000, 
+                           vQuantiles = c(.25, .5,.9, .99)) %>% 
+      st_transform(4326) 
+    
+    weighted.catch = eez.grid.catch %>% 
+      select(catched_weight_05) %>% 
+      rgeoda::queen_weights()
+    
+    
+    moran = rgeoda::local_gstar(w = weighted.catch, df = eez.grid.catch %>% select(catched_weight_05))
+    
+    clusters = moran %>%  
+      rgeoda::lisa_clusters() %>% unique()
+    cluster.label = moran %>%  rgeoda::lisa_labels() %>% unique()
+    cluster.label[1:3] = c("Insignificant","Hotspot", "Coldspot")
+    cluster.color = moran %>%  rgeoda::lisa_colors()
+    cluster.color[1] = "#9CB2B2"
+    
+    getis.catch = eez.grid.catch  %>% 
+      mutate(getis = moran %>%  rgeoda::lisa_clusters() %>%  as.factor(), 
+             pvalues = moran %>% rgeoda::lisa_pvalues(),
+             plabels = case_when(pvalues >= 0.05 ~ "Not significant",
+                                 pvalues < 0.05 ~ "Significant"))
+    
+    
+    ggplot()+
+      geom_sf(data = getis.catch, aes(fill = getis), color = "ivory")+
+      ggspatial::layer_spatial(data = tz.sf,  fill = "#87755B") +
+      coord_sf(xlim = c(38.4,43.1), ylim = c(-10.5,-4.8))+
+      scale_fill_manual(values = cluster.color, label = cluster.label, name = "Clusters")+
+      theme(legend.position = c(.16,.13))
+  })
+  
+  
+  output$densityEffort = renderPlot({
+    
+    eez.grid.catchEffort = eez.catch.clean %>% 
+      filter(month == input$monthLL & !is.na(catched_weight)) %>%
+      st_as_sf(coords = c("lon", "lat"), crs = 4326) %>% 
+      st_transform(32737) %>% 
+      point_tb() %>% 
+      select(x = lon, y = lat, catched_weight)  %>% 
+      btb::kernelSmoothing(sEPSG = "32737", 
+                           iCellSize = 20000, 
+                           iBandwidth = 30000, 
+                           vQuantiles = c(.25, .5,.9, .99)) %>% 
+      st_transform(4326) 
+    
+    eez.grid.catchEffort %>% 
+      ggplot()+
+      geom_sf(aes(fill = nbObs), color = "ivory")+
+      scale_fill_gradientn(colours = mycolor2, name = "Fishing\n Events", trans = scales::sqrt_trans())+
+      ggspatial::layer_spatial(data = tz.sf,  fill = "#87755B") +
+      coord_sf(xlim = c(38.4,43.1), ylim = c(-10.5,-4.8))+
+      theme(legend.position = c(.15,.17))
+    
+  })
+  
+  output$hotspotEffort = renderPlot({
+    
+    eez.grid.catch.nbObs = eez.catch.clean %>% 
+      filter(month == input$monthLL & !is.na(catched_weight)) %>%
+      st_as_sf(coords = c("lon", "lat"), crs = 4326) %>% 
+      st_transform(32737) %>% 
+      point_tb() %>% 
+      select(x = lon, y = lat, catched_weight)  %>% 
+      btb::kernelSmoothing(sEPSG = "32737", 
+                           iCellSize = 20000, 
+                           iBandwidth = 30000, 
+                           vQuantiles = c(.25, .5,.9, .99)) %>% 
+      st_transform(4326) 
+    
+    
+    weighted.effort = eez.grid.catch.nbObs %>% 
+      select(nbObs) %>% 
+      rgeoda::queen_weights()
+    
+    
+    moran = rgeoda::local_gstar(w = weighted.effort, 
+                                df = eez.grid.catch.nbObs %>% select(nbObs))
+    
+    clusters = moran %>%  
+      rgeoda::lisa_clusters() %>% unique()
+    cluster.label = moran %>%  rgeoda::lisa_labels() %>% unique()
+    cluster.label[1:3] = c("Insignificant","Hotspot", "Coldspot")
+    cluster.color = moran %>%  rgeoda::lisa_colors()
+    cluster.color[1] = "#9CB2B2"
+    
+    
+    getis.effort.nbObs = eez.grid.catch.nbObs  %>% 
+      mutate(getis = moran %>%  rgeoda::lisa_clusters() %>%  as.factor(), 
+             pvalues = moran %>% rgeoda::lisa_pvalues(),
+             plabels = case_when(pvalues >= 0.05 ~ "Not significant",
+                                 pvalues < 0.05 ~ "Significant"))
+    
+    
+    ggplot()+
+      geom_sf(data = getis.effort.nbObs, aes(fill = getis), color = "ivory")+
+      ggspatial::layer_spatial(data = tz.sf,  fill = "#87755B") +
+      coord_sf(xlim = c(38.4,43.1), ylim = c(-10.5,-4.8))+
+      scale_fill_manual(values = cluster.color, label = cluster.label, name = "Clusters")+
+      theme(legend.position = c(.16,.13))
+    
+  })
+  
+  output$semba = renderImage({
+    list(src = "www/semba.png",
+         contentType = 'image/png', height = 140,
+         alt = "Masumbuko Semba | the Developer")
+  }, deleteFile = FALSE)
+  
+  ## acknowledgement ---- 
+  output$logo1 = renderImage({
+    list(src = "img/coat.png",
+         contentType = 'image/png', height = 140,
+         alt = "Coat of arm")
+  }, deleteFile = FALSE)
+  
+  output$logo2 = renderImage({
+    list(src = "img/dsfa.png",
+         contentType = 'image/png', height = 140,
+         alt = "Deep Sea Fishing Authority")
+  }, deleteFile = FALSE)
+  
+  output$logo3 = renderImage({
+    list(src = "img/tafiri.png",
+         contentType = 'image/png', height = 140,
+         alt = "UNEP")
+  }, deleteFile = FALSE)
+  
+  output$logo4 = renderImage({
+    list(src = "img/gmes.png",
+         contentType = 'image/png', height = 140,
+         alt = "GMES Africa")
+  }, deleteFile = FALSE)
+  
+  output$logo5 = renderImage({
+    list(src = "img/wiomsa.png",
+         contentType = 'image/png', height = 140,
+         alt = "Western Indian Ocean Marine Science Association")
+  }, deleteFile = FALSE)
+  
+  
+}
+
+```
+
+### Client 
+
+```{r}
+#| eval: false
+#| echo: true
+#| code-line-numbers: "2"
+
+# Application
+shinyApp(ui = ui, server = server)
+
+```
+
+
+
+:::
+
+# Selected [Tools in Marine]{style="color:#399BE5"}
+
+::: {.absolute top="0" left="100%"}
+::: {.sectionhead}
+3 [1 2 4 ]{style="opacity:0.2"}
+:::
+:::
+
+
+
+## [The Exclusive Economic Zone Tool](https://semba.shinyapps.io/marineTz/)
+
+<iframe class="shiny" src="https://semba.shinyapps.io/marineTz/" style = "height: 800px; width: 1000px"></iframe>
+
+
+## [The Pemba Channel Hub](https://semba.shinyapps.io/OceanWebApp/)
+<iframe class="shiny" src="https://semba.shinyapps.io/OceanWebApp/" style = "height: 500px; width: 1000px"></iframe>
+
+
+## [The coastal and Marine Data Hub](https://semba.shinyapps.io/coastal_dashboard/)
+<iframe class="shiny" src="https://semba.shinyapps.io/coastal_dashboard/" style = "height: 500px; width: 1000px"></iframe>
+
+
+# [Conclusion & recommendation]{style="color:#399BE5"}
+
+::: {.absolute top="0" left="100%"}
+::: {.sectionhead}
+4 [1 2 3]{style="opacity:0.2"}
+:::
+:::
+## [The heart of the app]{style="color:#399BE5" auto-animate=true}
+
+
+## {auto-animate=true}
+
+Automate
+
+## {auto-animate=true}
+
+Interactive
+
+Automate
+
+
+## {auto-animate=true}
+
+Complement other data information tools
+
+Interactive
+
+Automate
+
+## {auto-animate=true}
+
+Require data to function
+
+Complement other data information tools
+
+Interactive
+
+Automate
+
+## {auto-animate=true}
+
+Web app are data driven
+
+Require data to function
+
+Complement other data information tools
+
+Interactive
+
+Automate
+
+<!-- ## Thanks {background-color="aquamarine" background-image="sponsor-01.png" background-size="1000px" background-repeat="no-repeat" style="color:#399BE5"} -->
+
+
+## Acknowledgment
+![](WIOMSAlogo.png){.absolute top=200 left=0 width="300" height="180"}
+
+![](logos/coat.png){.absolute top=50 right=50 width="175" height="200"}
+
+![](logos/Tafiri logo recreated_bacground_white.png){.absolute bottom=0 right=50 width="200" height="205"}
+
+![](logos/nmaist.png){.absolute bottom=0 right=250 width="200" height="205"}
+
+![](logos/dsfa.png){.absolute bottom=0 right=550 width="200" height="205"}
+
