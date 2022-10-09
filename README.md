@@ -1,8 +1,8 @@
-# Twelveth WIOMSA Symposium
+## Twelveth WIOMSA Symposium
 
 The Symposium is the premier regional scientific event on the coastal and marine environment. It will showcase insightful and inspiring presentations on the latest research results and key developments in the Western Indian Ocean region.
 
-The Symposium Theme “A New Decade of Western Indian Ocean Science” is inspired by the current global and regional goals including the UN Sustainable Development Goals, the UN Decade of Ocean Science for Sustainable Development, the Decade of Ocean Restoration, as well as regional goals. The Symposium will present the most recent advance made in ocean and climate science to address the challenges facing the Western Indian Ocean and to deliver on these goals.
+The Symposium Theme ***A New Decade of Western Indian Ocean Science*** is inspired by the current global and regional goals including the UN Sustainable Development Goals, the UN Decade of Ocean Science for Sustainable Development, the Decade of Ocean Restoration, as well as regional goals. The Symposium will present the most recent advance made in ocean and climate science to address the challenges facing the Western Indian Ocean and to deliver on these goals.
 
 ## Objectives
 The overarching aim of the 12th WIOMSA Symposium is to mobilize the marine and coastal community behind the ideas of sustainable development and focus the research and technological development in ocean science on existentially important issues of protection and sustainable use of the ocean. The five detailed symposium objectives are outlined below:
